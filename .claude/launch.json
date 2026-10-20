@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "quadros",
+      "runtimeExecutable": "node",
+      "runtimeArgs": [".claude/serve.js", "8891", "."],
+      "port": 8891
+    }
+  ]
+}

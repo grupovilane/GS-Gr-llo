@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quadros | GS Infinity Travel</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#120D44">
+<link rel="icon" type="image/png" href="assets/favicongs.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Titan+One&family=Fredoka:wght@400;500;600;700&family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="hdr">
+  <a class="hdr__logo" href="#/" aria-label="Início"><img src="assets/logo-light.png" alt="GS Infinity Travel"></a>
+  <nav class="nav" aria-label="Principal">
+    <a href="#/">Quadros</a>
+    <a href="#/modelos">Modelos</a>
+    <button type="button" class="nav__cta" data-act="new-board">+ Criar</button>
+  </nav>
+  <label class="search">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+    <input id="q" type="search" placeholder="Buscar cartões" autocomplete="off" aria-label="Buscar cartões">
+  </label>
+  <button type="button" class="me" id="me" data-act="user-menu" aria-label="Usuário e equipe"></button>
+  <i class="hdr__line" aria-hidden="true"></i>
+</header>
+
+<main id="app"></main>
+
+<dialog id="cardDlg" class="cm-dlg" aria-label="Cartão">
+  <div class="cm" id="cm"></div>
+</dialog>
+
+<div id="login" class="login" hidden></div>
+<div id="pop" class="pop" hidden></div>
+<div id="toast" class="toast" role="status" hidden></div>
+<input type="file" id="importFile" accept="application/json,.json" hidden>
+
+<script src="config.js"></script>
+<script src="cloud.js"></script>
+<script src="modelos.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
