@@ -266,6 +266,7 @@ function commit() {
 function renderMe() {
   const m = me();
   const pend = CLOUD && isAdmin() ? people.filter(x => x.status === 'pending').length : 0;
+  $('#out').hidden = !CLOUD;
   $('#me').innerHTML = `${av(m)}<span>${esc(m ? m.name : '')}</span>${pend ? `<i class="me__dot" title="${pend} pedido(s) de acesso"></i>` : ''}`;
 }
 
@@ -1224,7 +1225,7 @@ function tabEquipe() {
   const order = { pending: 0, active: 1, blocked: 2 };
   const list = [...people].sort((a, z) => order[a.status] - order[z.status]);
   return `<h2 class="sec-title">${ic('users')}Equipe</h2>
-  <p class="hint">Só você, como administrador, vê esta aba. Quem cria uma conta entra como “pendente” e só acessa os quadros depois que você aprova.</p>
+  <p class="hint">Só você, como administrador, vê esta aba. Todas as outras contas são de membros comuns: entram como “pendentes” e só acessam os quadros depois que você aprova.</p>
   <div class="team">${list.map(p => {
     const self = p.id === S.me;
     const act = self ? '' : p.status === 'pending'
@@ -1234,8 +1235,7 @@ function tabEquipe() {
         : `<button class="btn btn--soft" data-act="team-status" data-id="${p.id}" data-v="active">Reativar</button>`;
     return `<div class="team__row is-${p.status}">${av(p)}
       <div class="team__who"><b>${esc(p.name)}${self ? ' (você)' : ''}</b><small>${esc(p.email)}</small></div>
-      <select class="in team__role" data-role="${p.id}" ${self || p.status !== 'active' ? 'disabled' : ''} aria-label="Função">
-        <option value="member" ${p.role === 'member' ? 'selected' : ''}>Membro</option><option value="admin" ${p.role === 'admin' ? 'selected' : ''}>Administrador</option></select>
+      <span class="role role--${p.role}">${ROLE_LABEL[p.role]}</span>
       <span class="chip chip--${p.status}">${STATUS_LABEL[p.status]}</span>${act}</div>`;
   }).join('')}</div>`;
 }
@@ -1306,7 +1306,7 @@ function renderHelp() {
       <div class="help">
         <article><h3>Primeiros passos</h3><p>Em <b>Quadros</b>, clique em “Criar” para começar um quadro em branco ou use um dos <a class="linkish" href="#/modelos">modelos prontos</a>. Cada quadro tem listas (as etapas) e cada tarefa é um cartão.</p></article>
         <article><h3>Cartões</h3><p>Arraste um cartão para outra lista para mudar a etapa. Clique nele para ver etiquetas, membros, data de entrega, checklist, comentários e histórico. No celular, segure o cartão um instante para arrastar.</p></article>
-        <article><h3>Quem pode o quê</h3><p><b>Administrador:</b> tudo, inclusive aprovar, bloquear e mudar a função das pessoas.<br><b>Membro:</b> usa todos os quadros e cartões, mas só edita a própria conta (nome, cor, cargo e senha).</p></article>
+        <article><h3>Quem pode o quê</h3><p><b>Administrador (login mestre com o Google):</b> tudo, inclusive aprovar e bloquear as outras pessoas.<br><b>Membro:</b> usa todos os quadros e cartões, mas só edita a própria conta (nome, cor, cargo e senha).</p></article>
         <article><h3>Entrar e manter conectado</h3><p>Entre com o Google ou com e-mail e senha. Marque “Manter conectado” para não precisar entrar de novo neste computador. Quem cria uma conta nova aguarda a aprovação do administrador.</p></article>
         <article><h3>Backup</h3><p>Em <a class="linkish" href="#/conta/config">Configurações</a> você exporta uma cópia de todos os quadros em um arquivo <code>.json</code>.</p></article>
         <article><h3>Atalhos</h3><div class="keys">${SHORTCUTS.map(([k, d]) => `<div class="keys__row"><kbd>${esc(k)}</kbd><span>${esc(d)}</span></div>`).join('')}</div></article>
@@ -1864,6 +1864,7 @@ function authMsg(e) {
   if (/rate limit|too many/i.test(m)) return 'Muitas tentativas. Espere um pouco e tente de novo.';
   if (/password/i.test(m) && /(least|short|weak)/i.test(m)) return 'Senha fraca. Use pelo menos 6 caracteres.';
   if (/provider is not enabled|unsupported provider/i.test(m)) return 'O login com Google ainda não foi ativado no Supabase.';
+  if (/database error saving new user|só entra com o google/i.test(m)) return 'Este e-mail não pode criar conta com senha. Se você é o administrador, use “Continuar com o Google”.';
   if (/different from the old/i.test(m)) return 'A nova senha precisa ser diferente da atual.';
   return m || 'Algo deu errado. Tente de novo.';
 }
@@ -2025,7 +2026,7 @@ async function logout() {
   board = null; cardId = null;
   if (dlg.open) dlg.close();
   closePop();
-  app.innerHTML = ''; $('#me').innerHTML = '';
+  app.innerHTML = ''; $('#me').innerHTML = ''; $('#out').hidden = true;
   history.replaceState(null, '', location.pathname);
   loggingOut = false;
   showLogin();

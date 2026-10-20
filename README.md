@@ -30,9 +30,10 @@ navegador (exporte backups pelo menu da conta › Configurações).
 
 ## Quem pode o quê (modo nuvem)
 
-- **Administrador** (a primeira conta criada): usa tudo, aprova ou bloqueia pessoas, muda a
-  função de cada um e edita qualquer conta.
-- **Membro**: usa todos os quadros, listas e cartões da equipe, mas **só edita a própria
+- **Administrador** (login mestre): é só o e-mail **grupovilane@gmail.com**, e só entrando
+  com o **Google**. Usa tudo, aprova ou bloqueia as outras pessoas e vê a aba Equipe. Esse
+  e-mail não consegue criar conta com senha, para ninguém "roubar" o acesso mestre.
+- **Membro** (todas as outras contas, sempre usuários comuns): usa todos os quadros, listas e cartões da equipe, mas **só edita a própria
   conta** (nome, cor, cargo e senha). Não vê a aba Equipe e não consegue alterar função,
   status ou e-mail de ninguém.
 - **Pendente**: criou a conta, mas ainda não foi aprovado. Não vê nenhum dado.
@@ -61,9 +62,11 @@ alguém que mexa no código do navegador não consegue editar a conta de outra p
 6. **Colar as chaves.** Em **Project Settings › API**, copie a **Project URL** e a chave
    **anon public** para o `config.js`. Essa chave pode ficar no site: quem protege os dados
    são as regras do passo 2.
-7. **Criar a conta do administrador.** Abra o app e crie **a sua conta primeiro**. A primeira
-   conta vira administradora automaticamente. Depois disso, cada pessoa da equipe cria a
-   própria conta e você aprova em **Conta › Equipe**.
+7. **Entrar como administrador.** Abra o app e clique em **Continuar com o Google** usando
+   grupovilane@gmail.com. Essa conta já entra como administradora e liberada. Depois, cada
+   pessoa da equipe cria a própria conta (Google ou e-mail e senha) e você aprova em
+   **Conta › Equipe**. Para trocar o e-mail mestre, altere `master_email()` no
+   `supabase/schema.sql` e rode o arquivo de novo.
 
 ### Levar os quadros que você já tem
 No modo local, exporte o backup (Conta › Configurações). Depois de ligar a nuvem e entrar

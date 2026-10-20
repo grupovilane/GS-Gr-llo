@@ -697,3 +697,9 @@ html[data-theme=dark] .keys__row kbd{background:rgba(250,249,246,.08)}
 html[data-theme=dark] .me__dot{box-shadow:0 0 0 2px #120D44}
 
 .btn--soft,.btn--ghost{color:var(--navy)}
+
+/* botão Sair no cabeçalho (modo nuvem) */
+.out{display:flex;align-items:center;gap:7px;padding:7px 12px;border-radius:999px;color:var(--serenity);font-weight:600;font-size:14px;transition:background .2s,color .2s}
+.out:hover{background:rgba(250,249,246,.12);color:var(--cream)}
+.out[hidden]{display:none}
+@media (max-width:720px){.out span{display:none}.out{padding:8px}}
