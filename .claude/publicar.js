@@ -63,6 +63,8 @@ fs.writeFileSync(path.join(mirror, '.gitignore'), '.DS_Store\nThumbs.db\nnode_mo
 
 run('git add -A');
 if (!run('git status --porcelain').trim()) { console.log('Nada para publicar: o repositório já está igual.'); process.exit(0); }
-run(`git -c core.autocrlf=false commit -q -F -`.replace('-F -', '-m ' + JSON.stringify(msg + '\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>')));
+const msgFile = path.join(os.tmpdir(), 'gs-commit-msg.txt');
+fs.writeFileSync(msgFile, msg + '\n\nCo-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>\n');
+run(`git -c core.autocrlf=false commit -q -F "${msgFile}"`);
 console.log(run('git push -u origin HEAD:main 2>&1 || true'));
 console.log(run('git log --oneline -3'));
