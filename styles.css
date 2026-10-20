@@ -671,17 +671,17 @@ body.locked #app,body.locked .hdr{visibility:hidden}
 :root{--ink:#120D44}
 html[data-theme=dark]{color-scheme:dark}
 html[data-theme=dark] body{
-  --cream:#0C0930;--white:#17124F;--navy:#FAF9F6;--line:rgba(250,249,246,.14);--muted:rgba(250,249,246,.64);
+  --cream:#0E0E10;--white:#18181C;--navy:#FAF9F6;--line:rgba(250,249,246,.14);--muted:rgba(250,249,246,.64);
   background:var(--cream);color:var(--navy)
 }
 html[data-theme=dark] :is(.hdr,.home__hero,.login,.toast,.board,.tile,.tpl__prev){
-  --navy:#120D44;--cream:#FAF9F6;--white:#FFFFFF;--line:rgba(18,13,68,.12);--muted:rgba(18,13,68,.62)
+  --navy:#0A0A0C;--cream:#FAF9F6;--white:#FFFFFF;--line:rgba(10,10,12,.12);--muted:rgba(10,10,12,.62)
 }
 html[data-theme=dark] :is(.list,.addlist-form,.cm-dlg,.pop,.tile--new){
-  --cream:#1B1560;--white:#262080;--navy:#FAF9F6;--line:rgba(250,249,246,.16);--muted:rgba(250,249,246,.66)
+  --cream:#1C1C21;--white:#27272D;--navy:#FAF9F6;--line:rgba(250,249,246,.16);--muted:rgba(250,249,246,.66)
 }
 html[data-theme=dark] .tile--new{border-color:rgba(250,249,246,.22)}
-html[data-theme=dark] .tile--new:hover{background:#17124F}
+html[data-theme=dark] .tile--new:hover{background:#18181C}
 html[data-theme=dark] .desc a{color:var(--serenity)}
 html[data-theme=dark] .ph{background:rgba(250,249,246,.1);border-color:rgba(250,249,246,.25)}
 html[data-theme=dark] :is(.icon-btn:hover,.addcard:hover,.opt:hover,.ck:hover,.acct__tab:hover,.sbtn,.btn--soft,.chip-add,.cm__close,.desc-empty,.list__count,.pop__x:hover,.tpl__col i){background:rgba(250,249,246,.1)}
@@ -694,7 +694,7 @@ html[data-theme=dark] .acct__tab.on{background:var(--mint);color:#120D44}
 html[data-theme=dark] .acct__tab.on svg{color:#120D44}
 html[data-theme=dark] .pill.on{background:var(--mint);color:#120D44;border-color:var(--mint)}
 html[data-theme=dark] .keys__row kbd{background:rgba(250,249,246,.08)}
-html[data-theme=dark] .me__dot{box-shadow:0 0 0 2px #120D44}
+html[data-theme=dark] .me__dot{box-shadow:0 0 0 2px #0A0A0C}
 
 .btn--soft,.btn--ghost{color:var(--navy)}
 
@@ -703,3 +703,13 @@ html[data-theme=dark] .me__dot{box-shadow:0 0 0 2px #120D44}
 .out:hover{background:rgba(250,249,246,.12);color:var(--cream)}
 .out[hidden]{display:none}
 @media (max-width:720px){.out span{display:none}.out{padding:8px}}
+
+/* tema escuro neutro: grafite, sem azul (as cores de destaque da marca continuam) */
+html[data-theme=dark]{--nav-pill:#050506;--navy-2:#18181C}
+html[data-theme=dark] .bg-navy,html[data-theme=dark] .login{
+  background:radial-gradient(900px 600px at 88% -10%,rgba(113,230,204,.07),transparent 60%),radial-gradient(700px 500px at -5% 110%,rgba(255,193,0,.05),transparent 60%),#0A0A0C
+}
+html[data-theme=dark] .home__hero::before{background:radial-gradient(circle,rgba(113,230,204,.07),transparent 65%)}
+html[data-theme=dark] .stat{background:rgba(250,249,246,.05);border-color:rgba(250,249,246,.1)}
+html[data-theme=dark] .acct-id .av{box-shadow:0 0 0 3px #26262C}
+html[data-theme=dark] .hdr__line{opacity:.9}
