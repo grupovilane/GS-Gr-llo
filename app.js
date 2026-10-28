@@ -2035,6 +2035,30 @@ async function logout() {
 /* =========================================================
    INÍCIO
    ========================================================= */
+/* =========================================================
+   ROLAGEM DAS PÁGINAS
+   Qualquer re-render da MESMA página (atualização automática, tempo real,
+   mudar um filtro, trocar o tema) mantém onde você estava rolando.
+   Só volta ao topo quando você muda de página de verdade.
+   ========================================================= */
+let lastPage = '';
+function keepScroll(render, pageKey) {
+  return function () {
+    const before = $('.home');
+    const key = pageKey();
+    const y = before && lastPage === key ? before.scrollTop : 0;
+    const out = render.apply(this, arguments);
+    lastPage = key;
+    const after = $('.home');
+    if (after) after.scrollTop = y;
+    return out;
+  };
+}
+renderHome = keepScroll(renderHome, () => 'inicio');
+renderTemplates = keepScroll(renderTemplates, () => 'modelos');
+renderAccount = keepScroll(renderAccount, () => 'conta/' + acctTab());
+renderHelp = keepScroll(renderHelp, () => 'ajuda');
+
 (async () => {
   if (!CLOUD) { route(); return; }          // modo local: sem login
   showAuthLoading();
