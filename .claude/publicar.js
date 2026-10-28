@@ -12,7 +12,7 @@ const src = path.resolve(__dirname, '..');
 const assetsSrc = path.resolve(src, '..', 'assets');
 const msg = process.argv[2] || 'Atualiza o app de quadros';
 const mirror = path.resolve(process.argv[3] || path.join(os.tmpdir(), 'GS-Gr-llo-espelho'));
-const ASSETS = ['logo-light.png', 'logo-navy.png', 'hero.jpg', 'banner.jpg', 'favicongs.png'];
+const ASSETS = ['logo-light.png', 'logo-navy.png', 'hero.jpg', 'banner.jpg', 'arg.jpg', 'cde.jpg', 'favicongs.png'];
 const SKIP = new Set(['.git', 'node_modules', 'assets']);
 
 const run = (cmd, cwd = mirror) => cp.execSync(cmd, { cwd, stdio: ['ignore', 'pipe', 'pipe'], encoding: 'utf8' });

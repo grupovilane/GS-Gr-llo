@@ -75,6 +75,9 @@ sem apagar nada.
 
 ## O que tem no app
 
+- Criar quadro no estilo do Trello: prévia, fundos (fotos de Foz ou cores da marca), título
+  obrigatório, **visibilidade** (equipe ou privado, só no modo nuvem) e "Começar com um template".
+  Quadro privado só é visto por quem o criou, e isso vale no servidor
 - Vários quadros, favoritos, fundos na paleta GS e **modelos prontos** (aba Modelos) para
   vendas, reservas, grupos, conteúdo, atendimento e equipe. Qualquer quadro pode virar modelo
 - Listas e cartões com arrastar e soltar (no celular, segure o cartão um instante) e rolagem

@@ -18,9 +18,11 @@ const DAY = 864e5;
 /* ---------- paleta do design system ---------- */
 const COLORS = [['mint', 'Menta'], ['gold', 'Dourado'], ['apricot', 'Damasco'], ['teal', 'Petróleo'],
   ['royal', 'Royal'], ['bordo', 'Bordô'], ['serenity', 'Serenity'], ['navy', 'Marinho']];
-const BGS = [['navy', 'Marinho', true], ['royal', 'Royal', true], ['teal', 'Petróleo', true], ['mint', 'Menta', false],
-  ['apricot', 'Damasco', false], ['cataratas', 'Cataratas', true], ['foz', 'Foz', true]];
-const isDark = k => (BGS.find(b => b[0] === k) || BGS[0])[2];
+// [chave, nome, escuro?, foto?]
+const BGS = [['cataratas', 'Cataratas BR', true, true], ['arg', 'Cataratas AR', true, true], ['foz', 'Foz do Iguaçu', true, true], ['cde', 'Ciudad del Este', true, true],
+  ['navy', 'Marinho', true], ['royal', 'Royal', true], ['teal', 'Petróleo', true], ['mint', 'Menta', false],
+  ['apricot', 'Damasco', false], ['bordo', 'Bordô', true], ['gold', 'Dourado', false]];
+const isDark = k => (BGS.find(b => b[0] === k) || BGS[4])[2];
 
 /* ---------- ícones ---------- */
 const I = {
@@ -112,9 +114,10 @@ function mkBoard(name, bg, tpl) {
   };
 }
 /* modelo = { name, bg, labels: [[nome, cor]], lists: [{ title, cards: [{ t, d, l, ck, due, cover }] }] } */
-function boardFromTpl(t, name, bg, withCards) {
+function boardFromTpl(t, name, bg, withCards, vis) {
   const b = {
     id: uid(), name, bg, starred: false, createdAt: Date.now(),
+    visibility: vis || 'equipe', owner: S.me,
     labels: (t.labels || []).map(([n, c]) => ({ id: uid(), name: n, color: c })),
     lists: [], cards: {}
   };
@@ -277,7 +280,7 @@ function tileHtml(b) {
   const n = openCards(b).length;
   return `<a class="tile bg-${b.bg} ${isDark(b.bg) ? '' : 'is-light'}" href="#/b/${b.id}">
     <span class="tile__name">${esc(b.name)}</span>
-    <span class="tile__meta">${b.lists.filter(l => !l.archived).length} listas · ${n} ${n === 1 ? 'cartão' : 'cartões'}</span>
+    <span class="tile__meta">${b.lists.filter(l => !l.archived).length} listas · ${n} ${n === 1 ? 'cartão' : 'cartões'}${b.visibility === 'privado' ? ' · Privado' : ''}</span>
     <button class="tile__star ${b.starred ? 'on' : ''}" data-act="star" data-id="${b.id}" aria-label="${b.starred ? 'Remover dos favoritos' : 'Favoritar'}">${ic('star')}</button>
     <button class="tile__del" data-act="del-board" data-id="${b.id}" aria-label="Excluir quadro" title="Excluir quadro">${ic('trash')}</button>
   </a>`;
@@ -381,27 +384,6 @@ function renderTemplates() {
       <p class="hint" style="margin-top:26px">Dica: qualquer quadro seu pode virar modelo. Abra o quadro, clique em “⋯” e escolha “Salvar como modelo”.</p>
     </div></div>
   </section>`;
-}
-function useTplPop(anchor, t) {
-  let bg = t.bg || 'navy';
-  const hasCards = t.lists.some(l => (l.cards || []).length);
-  openPop(anchor, 'Usar modelo', `
-    <h6>Fundo</h6>
-    <div class="bgs">${BGS.map(([k, n]) => `<button class="sw bg-${k} ${k === bg ? 'on' : ''}" data-bg="${k}" title="${n}" aria-label="${n}"></button>`).join('')}</div>
-    <label class="fld">Título do quadro<input class="in" data-n maxlength="60" value="${esc(t.name)}"></label>
-    ${hasCards ? '<label class="opt"><input type="checkbox" data-cards checked><span>Incluir cartões de exemplo</span></label>' : ''}
-    <button class="btn w100" data-go>Criar quadro</button>`, p => {
-    $$('[data-bg]', p).forEach(x => x.onclick = () => { bg = x.dataset.bg; $$('[data-bg]', p).forEach(y => y.classList.toggle('on', y === x)); });
-    const go = () => {
-      const name = $('[data-n]', p).value.trim();
-      if (!name) return $('[data-n]', p).focus();
-      const cards = $('[data-cards]', p);
-      const b = boardFromTpl(t, name, bg, !!(cards && cards.checked));
-      S.boards.push(b); save(); closePop(); goBoard(b);
-    };
-    $('[data-go]', p).onclick = go;
-    $('[data-n]', p).onkeydown = e => { if (e.key === 'Enter') go(); };
-  });
 }
 function saveTplPop(anchor) {
   const b = board;
@@ -1001,33 +983,80 @@ function filterPop(anchor) {
 }
 
 /* ---------- criar quadro ---------- */
-function newBoardPop(anchor) {
-  let bg = 'navy';
-  openPop(anchor, 'Criar quadro', `
-    <h6>Fundo</h6>
-    <div class="bgs">${BGS.map(([k, n]) => `<button class="sw bg-${k} ${k === bg ? 'on' : ''}" data-bg="${k}" title="${n}" aria-label="${n}"></button>`).join('')}</div>
-    <label class="fld">Título do quadro<input class="in" data-n maxlength="60" placeholder="Ex.: Grupo Foz · Julho"></label>
-    <label class="fld">Modelo<select class="in" data-t>
-      <option value="blank">Em branco</option>
-      ${S.templates.length ? `<optgroup label="Meus modelos">${S.templates.map(t => `<option value="s:${t.id}">${esc(t.name)}</option>`).join('')}</optgroup>` : ''}
-      ${Object.entries(window.GS_MODELOS.categorias).map(([k, n]) => {
-        const ms = window.GS_MODELOS.modelos.filter(m => m.cat === k);
-        return ms.length ? `<optgroup label="${esc(n)}">${ms.map(m => `<option value="g:${m.id}" ${m.id === 'kanban-projetos' ? 'selected' : ''}>${esc(m.name)}</option>`).join('')}</optgroup>` : '';
-      }).join('')}</select></label>
-    <a class="linkish" href="#/modelos">Ver todos os modelos</a>
-    <button class="btn w100" data-go>Criar</button>`, p => {
-    $$('[data-bg]', p).forEach(s => s.onclick = () => { bg = s.dataset.bg; $$('[data-bg]', p).forEach(x => x.classList.toggle('on', x === s)); });
-    const go = () => {
-      const name = $('[data-n]', p).value.trim();
-      if (!name) { $('[data-n]', p).focus(); return; }
-      const [src, id] = $('[data-t]', p).value.split(':');
-      const tpl = id ? findTpl(src, id) : { labels: DEFAULT_LABELS, lists: [] };
-      const b = boardFromTpl(tpl, name, bg, false);
-      S.boards.push(b); save(); closePop(); goBoard(b);
-    };
-    $('[data-go]', p).onclick = go;
-    $('[data-n]', p).onkeydown = e => { if (e.key === 'Enter') go(); };
-  });
+function newBoardPop(anchor, opts = {}) {
+  const G = window.GS_MODELOS;
+  const st = { title: '', bg: 'navy', vis: 'equipe', tpl: opts.tpl || null, cards: true };
+  const getTpl = () => (st.tpl ? findTpl(st.tpl.src, st.tpl.id) : null);
+  { const t = getTpl(); if (t) { st.title = t.name; st.bg = t.bg || 'navy'; } }
+
+  const read = p => {
+    const n = $('[data-n]', p); if (n) st.title = n.value;
+    const v = $('[data-vis]', p); if (v) st.vis = v.value;
+    const c = $('[data-cards]', p); if (c) st.cards = c.checked;
+  };
+  const swatch = ([k, n, , photo]) => `<button type="button" class="sw bg-${k} ${k === st.bg ? 'on' : ''}" data-bg="${k}" title="${n}" aria-label="${n}"></button>`;
+
+  const main = () => {
+    const t = getTpl();
+    const cols = t ? t.lists.slice(0, 3).map(l => l.title) : ['', '', ''];
+    const hasCards = t && t.lists.some(l => (l.cards || []).length);
+    openPop(anchor, 'Criar quadro', `
+      <div class="cb-prev bg-${st.bg}">${cols.map(c => `<span class="cb-col">${c ? `<b>${esc(c)}</b>` : '<i></i>'}<i></i><i></i></span>`).join('')}</div>
+      <h6>Tela de fundo</h6>
+      <div class="bgs bgs--photos">${BGS.filter(b => b[3]).map(swatch).join('')}</div>
+      <div class="bgs">${BGS.filter(b => !b[3]).map(swatch).join('')}</div>
+      <label class="fld"><span>Título do quadro <span class="req">*</span></span><input class="in" data-n maxlength="60" value="${esc(st.title)}" placeholder="Ex.: Grupo Foz · Julho"></label>
+      <p class="cb-err" data-err>👋 O título do quadro é obrigatório</p>
+      ${CLOUD ? `<label class="fld">Visibilidade<select class="in" data-vis>
+        <option value="equipe" ${st.vis === 'equipe' ? 'selected' : ''}>Equipe (todos os membros)</option>
+        <option value="privado" ${st.vis === 'privado' ? 'selected' : ''}>Privado (só eu)</option></select></label>` : ''}
+      ${t ? `<div class="cb-tpl"><span>Modelo: <b>${esc(t.name)}</b></span><button type="button" class="linkish" data-rmtpl>Remover</button></div>
+        ${hasCards ? `<label class="opt"><input type="checkbox" data-cards ${st.cards ? 'checked' : ''}><span>Incluir cartões de exemplo</span></label>` : ''}` : ''}
+      <button class="btn w100" data-go disabled>Criar</button>
+      ${t ? '' : '<button type="button" class="btn btn--soft w100" data-tpls>Começar com um template</button>'}`, p => {
+      const input = $('[data-n]', p), go = $('[data-go]', p), err = $('[data-err]', p);
+      const check = () => { const has = !!input.value.trim(); go.disabled = !has; err.hidden = has; };
+      check();
+      input.oninput = check;
+      $$('[data-bg]', p).forEach(b => b.onclick = () => {
+        st.bg = b.dataset.bg;
+        $$('[data-bg]', p).forEach(x => x.classList.toggle('on', x === b));
+        $('.cb-prev', p).className = 'cb-prev bg-' + st.bg;
+      });
+      const create = () => {
+        read(p);
+        const name = st.title.trim();
+        if (!name) return input.focus();
+        const b = boardFromTpl(t || { labels: DEFAULT_LABELS, lists: [] }, name, st.bg, !!(t && st.cards), CLOUD ? st.vis : 'equipe');
+        S.boards.push(b); save(); closePop(); goBoard(b);
+      };
+      go.onclick = create;
+      input.onkeydown = e => { if (e.key === 'Enter') create(); };
+      const tp = $('[data-tpls]', p); if (tp) tp.onclick = () => { read(p); pick(); };
+      const rm = $('[data-rmtpl]', p); if (rm) rm.onclick = () => { read(p); st.tpl = null; main(); };
+    });
+  };
+
+  const pick = () => {
+    const row = (src, t) => `<button type="button" class="opt tpl-row" data-src="${src}" data-id="${t.id}"><span><b>${esc(t.name)}</b><small>${t.lists.length} listas</small></span></button>`;
+    const groups = Object.entries(G.categorias).map(([k, n]) => [n, G.modelos.filter(m => m.cat === k)]).filter(g => g[1].length);
+    openPop(anchor, 'Escolher modelo', `
+      <button type="button" class="linkish" data-back>← Voltar</button>
+      ${S.templates.length ? `<h6>Meus modelos</h6>${S.templates.map(t => row('s', t)).join('')}` : ''}
+      ${groups.map(([n, ms]) => `<h6>${esc(n)}</h6>${ms.map(m => row('g', m)).join('')}`).join('')}
+      <a class="linkish" href="#/modelos">Ver a galeria completa</a>`, p => {
+      $('[data-back]', p).onclick = main;
+      $$('.tpl-row', p).forEach(r => r.onclick = () => {
+        st.tpl = { src: r.dataset.src, id: r.dataset.id };
+        const t = getTpl();
+        if (!st.title.trim()) st.title = t.name;
+        st.bg = t.bg || st.bg;
+        main();
+      });
+    });
+  };
+
+  main();
 }
 
 /* =========================================================
@@ -1412,7 +1441,7 @@ function act(a, t, e) {
       });
     }
     case 'tpl-cat': ui.tplCat = t.dataset.cat; return renderTemplates();
-    case 'use-tpl': return useTplPop(t, findTpl(t.dataset.src, t.dataset.id));
+    case 'use-tpl': return newBoardPop(t, { tpl: { src: t.dataset.src, id: t.dataset.id } });
     case 'del-tpl': {
       const tp = findTpl('s', t.dataset.id);
       return confirmPop(t, 'Excluir modelo?', `O modelo <b>${esc(tp.name)}</b> será apagado. Os quadros já criados com ele não mudam.`, 'Excluir modelo', () => {

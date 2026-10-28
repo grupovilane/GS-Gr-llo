@@ -154,8 +154,11 @@ create policy "perfis: editar" on public.profiles
   with check (id = auth.uid() or public.is_admin());
 
 -- Quadros e modelos: toda a equipe ativa lê e edita. Pendentes e bloqueados não veem nada.
+-- Quadro "privado" (data->>'visibility') só é visto e editado por quem o criou (data->>'owner').
 create policy "quadros: tudo" on public.boards
-  for all using (public.is_active()) with check (public.is_active());
+  for all
+  using (public.is_active() and (coalesce(data->>'visibility', 'equipe') <> 'privado' or data->>'owner' = auth.uid()::text))
+  with check (public.is_active() and (coalesce(data->>'visibility', 'equipe') <> 'privado' or data->>'owner' = auth.uid()::text));
 create policy "modelos: tudo" on public.templates
   for all using (public.is_active()) with check (public.is_active());
 
